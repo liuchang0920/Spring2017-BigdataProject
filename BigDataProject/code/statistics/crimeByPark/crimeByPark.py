@@ -24,7 +24,7 @@ if __name__ == "__main__":
     sc = SparkContext()
     crime_data = sc.textFile(sys.argv[1]).mapPartitions(readfile)
     crime_park = crime_data.map(lambda x: x[17]).filter(lambda x: x != None and x != "")
-    crime_park_count = crime_park.map(lambda x: (x, 1)).reduceByKey(add).sortByKey().map(lambda x:"%s\t%s" % (x[0], x[1]))
-    crime_park_count.saveAsTextFile(sys.argv[2])
+    crime_park_count = crime_park.map(lambda x: (x, 1)).reduceByKey(add).sortBy(lambda x: -x[1]).map(lambda x:"%s\t%s" % (x[0], x[1])).take(20)
+    sc.parallelize(crime_park_count).saveAsTextFile(sys.argv[2])
     sc.stop()
     
